@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <title>React App</title>
+  <style>
+    .App {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      align-items: center;
+    }
+
+    form {
+      width: 60%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+
+    form div {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    button {
+      width: 120px;
+      padding-block: 5px;
+      cursor: pointer;
+    }
+
+    th,
+    td {
+      padding: 10px;
+    }
+
+    input {
+      padding: 5px;
+      font-size: 1.1rem;
+    }
+
+    .served {
+      background-color: red;
+    }
+
+    .dining {
+      background-color: lime;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    let customers = [];
+    const capacity = 25;
+    let seatsLeft = 25;
+    let id = 0;
+
+    let count, guestName, guestNumber;
+    //form submit handler
+    const handleSubmit = (e) => {
+      e.preventDefault();
+
+      console.log(e.type);
+      //current time 
+      var today = new Date();
+      var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+      if (today.getHours() >= 12) {
+        var Time = time + " PM";
+      } else {
+        var Time = time + " AM";
+      }
+      console.log("count is :", count);
+      if (seatsLeft - count >= 0) {
+        seatsLeft -= count;
+
+        customers.push({ id, count, guestName, guestNumber, checkInTime: Time, checkOutTime: "-", status: "Click to checkout", delete: 'delete' });
+        id++;
+        console.log(customers);
+
+        // making the input fields empty 
+        document.getElementById("count").value = "";
+        document.getElementById("name").value = "";
+        document.getElementById("num").value = "";
+
+
+        rootElement.render(<App />);
+      }
+    }
+
+
+
+
+    // checkout function
+    const handleCheckout = (id) => {
+      // current time 
+      var today = new Date();
+      var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+      if (today.getHours() >= 12) {
+        var Time = time + " PM";
+      } else {
+        var Time = time + " AM";
+      }
+
+      // adding the data to current array element
+      customers[id].status = "Served";
+      customers[id].checkOutTime = Time;
+      seatsLeft += parseInt(customers[id].count);
+      console.log(customers[id]);
+      rootElement.render(<App />);
+    }
+    const handleDelete = (id) => {
+
+
+      const updatedcustomers = customers.filter((data) => data.id !== id);
+      console.log(updatedcustomers);
+      customers = updatedcustomers;
+      rootElement.render(<App />);
+    }
+
+
+    const App = () => (
+      <div className="App" style={{ textAlign: "center" }}>
+        <div>
+          <h2>Total Capacity: {capacity}</h2>
+          <h2>Seats Left: {seatsLeft}</h2>
+        </div>
+
+        {/* Create a form here */}
+        <form onSubmit={handleSubmit}>
+          <input type="number" name="count" id="count" placeholder="Guests count" onChange={(e) => count = e.target.value} required />
+          <input type="text" name="guestName" id="name" placeholder="Primary guest Name" onChange={(e) => guestName = e.target.value} required />
+          <input type="text" name="guestNumber" id="num" placeholder="Phone number" onChange={(e) => guestNumber = e.target.value} required />
+          <button type="submit">Add entry</button>
+        </form>
+
+        {/* Complete table to show records of customers */}
+        <table border="1px" style={{ margin: "auto" }}>
+          <thead>
+            <tr>
+              <th>Count</th>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Check In</th>
+              <th>Check Out </th>
+              <th>Status</th>
+              <th>Remove Entry</th>
+            </tr>
+          </thead>
+          <tbody>
+            {customers.map((field, i) => {
+              return (
+                <tr key={i}>
+                  <td>{field.count}</td>
+                  <td>{field.guestName}</td>
+                  <td>{field.guestNumber}</td>
+                  <td>{field.checkInTime}</td>
+                  <td>{field.checkOutTime}</td>
+                  <td onClick={() => handleCheckout(field.id)}>Click to Checkout</td>
+                  <td onClick={() => handleDelete(field.id)}>Delete</td>
+                </tr>
+              )
+            })}
+          </tbody>
+
+
+
+        </table>
+      </div>
+    );
+
+    const rootElement = ReactDOM.createRoot(document.getElementById("root"));
+    rootElement.render(<App />);
+  </script>
+
+</body>
+
+</html>
